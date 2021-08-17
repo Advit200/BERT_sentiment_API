@@ -14,3 +14,4 @@ MODEL.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
 
 REDIS_PORT = 6379
 APP_PORT = 8080
+HOST = "redis-server"

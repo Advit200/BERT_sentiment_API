@@ -5,7 +5,7 @@ from Make_Predictions import BERTModel
 import redis
 import config
 
-r = redis.Redis(host="redis_server",port=config.REDIS_PORT,db=0)
+r = redis.Redis(host=config.HOST,port=config.REDIS_PORT,db=0) # "redis-server" is the name of the service in kubernetes service file that we have defined and name of container in docker perspective.
 
 app = Flask(__name__)
 CORS(app)

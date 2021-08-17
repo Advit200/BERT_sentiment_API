@@ -9,7 +9,7 @@ services:
     environment: 
       - APP_NAME=MyFlaskApp
     expose:
-      - 8080
+      - 8080 # Expose 8080 port of the container for other containers to communicate to it.It will not be exposed to the outside world.
     depends_on: 
       - redis_server
 
@@ -17,14 +17,14 @@ services:
     image: "redis:alpine"
 
   nginx:
-    build: ./nginx
+    build: ./nginx # look for docker file under nginx folder
     container_name: nginx
     restart: always
     ports: 
-      - "80:80" # host port:contianer port
+      - "80:80" # host port:container port
 
       # Host port 80 is exposed to the world.So when ever anyone comes to our web page on port 80,
-      # it will be redirected to the port 80 of our nginx contianer.
+      # it will be redirected to the port 80 of our nginx container.
       # And we are listening on port 80 (as mentiond in nginx.conf file) and we have mentioned uwsgi_pass flask:8080
       # where flask is the name of the container(as we have mentioned above) .
 

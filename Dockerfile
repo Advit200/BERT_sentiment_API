@@ -7,6 +7,8 @@ RUN pip install torch
 
 RUN mkdir aditya/
 
+# EXPOSE 80
+
 WORKDIR /aditya
 
 COPY . .
@@ -15,7 +17,7 @@ RUN python -m pip install -r requirements.txt
 
 CMD ["uwsgi", "app.ini"]
 
-# EXPOSE 8000
+
 
 # EXPOSE 6379
 

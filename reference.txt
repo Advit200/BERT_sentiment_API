@@ -1,0 +1,54 @@
+###########################################################################################################################################################
+
+CREATING KUBERNETES DEPLOYMENT AND SERVICE FILE :
+
+1. Create Dockerfile for main flask app and nginx.
+2. Create Docker compose file for this Docker setup.This will define how the containers communicate with each other and will make the kubernetes setup easier.
+3. Navigate to the dir where docker-compose file is present and type "docker-compose up" and check if everything is working fine.
+4. Use kompose to convert this Dockerfile into multiple deployment and service file for different services mentioned under docker-compose.
+   ( https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/ )
+   NOTE : Make sure that every service that we have mentioned in the docker-compose file has both deployment and service yaml file.As for redis we have not mentioned the ports in the docker-compose file so automatically when you call kompose convert, it will not generate the service.yaml file,so you need to craete manually.
+   NOTE : Double check all the deployment and service files for names,images and port configuration.If this is not correct,pods will not be able to communicate with each other.
+   NOTE: As nginx will be facing first hit to our api and then redirecting it to uwsgi,we need to define type:LoadBalancer in nginx service.yaml file to expose an external port for this.
+
+###########################################################################################################################################################
+
+   PUSHING IMAGE TO AWS ECR:
+
+   You should have AWS-CLI installed for this
+
+1. Create a repo under Amazon ECR.eg "flask_repo"
+2. Login to AWS ECR using AWS-CLI :
+	- aws ecr get-login-password --region region | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
+       eg: 
+          aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 696118261328.dkr.ecr.us-east-2.amazonaws.com
+    NOTE : If facing issue in login,try creating credentials file in "C:\Users\adityg1\.aws" folder.( https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html )
+3. Build docker image of the docker file.( you should be inside the folder where dockerfile is present,thats why we have used . in the last) (-t is to tag the image name as flask_repo)
+	- eg :  
+          docker build -t flask_repo .
+
+4. Tag your image so that it gets ready to be pushed to AWS ECR repo.
+	- docker tag SOURCE_IMAGE:latest  AWS-ACCOUNT-ID.dkr.ecr.REGION.amazonaws.com/TARGET_IMAGE:latest
+		eg:    
+           docker tag flask_repo:latest 696118261328.dkr.ecr.us-east-2.amazonaws.com/flask_repo:latest
+
+5. Push the image to AWS ECR now.
+	- docker push aws_account_id.dkr.ecr.region.amazonaws.com/target_image:latest
+		eg:
+		   docker push 696118261328.dkr.ecr.us-east-2.amazonaws.com/flask_repo:latest
+
+NOTE : Perform the above steps for all the custom images that you have build.
+
+###########################################################################################################################################################
+
+KUBERNETES SETUP
+
+ After you have deployment.yaml and service.yaml file for all the services(in this case flask app,nginx and redis) perform the below steps:
+ ( https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html )
+
+ 1. Create a namespace by "kubectl create namespace <name>".
+    NOTE : Make sure to include this namespace name in all of your deployment and service file so that kubernetes know in which namespace to create the pods.
+2. Type "kubectl apply -f <filename_1,filename_2>" to create pods and services from the deployment and service files.
+    eg:
+      kubectl apply -f nginx-deployment.yaml,nginx-service.yaml,redis-server-deployment.yaml,redis-server-service.yaml
+3. Validate that all is working fine by "kubectl get all -n <namespace name>".You can also Validate by opening docker desktop and seeing running containers.

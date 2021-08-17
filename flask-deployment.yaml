@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Users\adityg1\Desktop\aditya\kompose.exe convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: flask
+  name: flask
+  namespace: aditya
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: flask
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Users\adityg1\Desktop\aditya\kompose.exe convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: flask
+    spec:
+      containers:
+        - env:
+            - name: APP_NAME
+              value: MyFlaskApp
+          image: 696118261328.dkr.ecr.us-east-2.amazonaws.com/flask_repo:latest
+          imagePullPolicy: "IfNotPresent"
+          name: flask
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
