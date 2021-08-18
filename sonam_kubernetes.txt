@@ -1,0 +1,95 @@
+Pre Requisites
+AWS CLI loging with access key and secret
+--Docker Image build and deploy on ECR
+C:\Users\sonamr>cd docker
+
+
+
+C:\Users\sonamr\docker>aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 681457747866.dkr.ecr.us-east-1.amazonaws.com
+Login Succeeded
+
+
+
+C:\Users\sonamr\docker>docker build -t glad .
+Sending build context to Docker daemon 422.9MB
+Step 1/3 : FROM apacheignite/ignite as builder
+---> 34690153ef0b
+Step 2/3 : ENV OPTION_LIBS ignite-kubernetes,ignite-rest-http
+---> Using cache
+---> 2a86354a47ba
+Step 3/3 : EXPOSE 11211 47100 47500 49112 10800
+---> Using cache
+---> eca0c59b7ec1
+Successfully built eca0c59b7ec1
+Successfully tagged glad:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+
+
+C:\Users\sonamr\docker>docker tag glad:latest 681457747866.dkr.ecr.us-east-1.amazonaws.com/glad:latest
+
+
+
+C:\Users\sonamr\docker>docker push 681457747866.dkr.ecr.us-east-1.amazonaws.com/glad:latest
+The push refers to repository [681457747866.dkr.ecr.us-east-1.amazonaws.com/glad]
+97aae477bc97: Pushed
+a12144198921: Pushed
+307f0d042ee5: Pushed
+3f81f89514f9: Pushed
+42f8b870a9d4: Pushed
+05a472416541: Pushed
+ab27d86bd2de: Pushed
+edd61588d126: Pushed
+9b9b7f3d56a0: Pushed
+f1b5933fe4b5: Pushed
+latest: digest: sha256:04f793a37d05449058d688216cd34f1076fa13979991cbeb32abaa828c9562b7 size: 2408
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Kubernetics
+--Create Cluster
+aws eks create-cluster --region us-east-1 --name Glad-ignite --kubernetes-version 1.20 --role-arn arn:aws:iam::681457747866:role/eks-cluster --resources-vpc-config subnetIds=subnet-0428c14e54210f959,subnet-0e81df6724d73fd11,securityGroupIds=sg-00bb650e56203e765
+
+
+
+--Update config
+
+
+
+C:\Users\sonamr>aws eks --region us-east-1 update-kubeconfig --name Glad-ignite
+Added new context arn:aws:eks:us-east-1:681457747866:cluster/Glad-ignite to C:\Users\sonamr\.kube\config
+
+
+
+-- Get Cluster Details
+C:\Users\sonamr>kubectl get svc
+NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE
+kubernetes ClusterIP 172.20.0.1 <none> 443/TCP 9m21s
+
+
+
+--Create namespace
+C:\Users\sonamr>kubectl create namespace ignite
+namespace/ignite created
+
+
+
+--Create service
+C:\Users\sonamr\docker>kubectl create -f service.yaml
+service/gladignite created
+
+
+
+--Create service account
+C:\Users\sonamr\docker>kubectl create sa ignite -n ignite
+serviceaccount/ignite created
+
+
+
+--Create node configuration xml
+C:\Users\sonamr\docker>kubectl create configmap ignite-config -n ignite --from-file=node-configuration.xml
+configmap/ignite-config created
+
+
+
+--Deploy the Pods
+C:\Users\sonamr\docker> kubectl create -f deployment.yaml
+dedeployment.apps/glad created
