@@ -1,0 +1,13 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: aditya-cluster
+  region: us-east-2
+
+nodeGroups:
+  - name: aditya-nodegroup
+    instanceType: t2.micro
+    desiredCapacity: 3 # no.of nodes you wants to create.
+    
+    

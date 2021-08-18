@@ -14,4 +14,4 @@ MODEL.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
 
 REDIS_PORT = 6379
 APP_PORT = 8080
-HOST = "redis-server"
+HOST = "redis-server" # "redis-server" is the name of the service in kubernetes service file that we have defined and name of container in docker-compose perspective.

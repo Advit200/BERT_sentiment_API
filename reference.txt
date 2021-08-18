@@ -41,7 +41,7 @@ NOTE : Perform the above steps for all the custom images that you have build.
 
 ###########################################################################################################################################################
 
-KUBERNETES SETUP
+RUN KUBERNETES ON PERSONAL SYSTEM (using docker-desktop as node)
 
  After you have deployment.yaml and service.yaml file for all the services(in this case flask app,nginx and redis) perform the below steps:
  ( https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html )
@@ -52,3 +52,24 @@ KUBERNETES SETUP
     eg:
       kubectl apply -f nginx-deployment.yaml,nginx-service.yaml,redis-server-deployment.yaml,redis-server-service.yaml
 3. Validate that all is working fine by "kubectl get all -n <namespace name>".You can also Validate by opening docker desktop and seeing running containers.
+4. You can test the API by visiting the port mentioned in nginx ports in the output of above line.
+5. You can delete the namespace to delete all the pods and services under it by "kubectl delete namespace <name>".Alternatively, you can do the below:
+    -  Delete all pods by "kubectl "delete --all pods --namespace=default"
+    -  Delete all deployment by "kubectl delete --all deployments --namespace=default"
+    -  Delete all services by "kubectl delete --all services --namespace=default"
+
+###########################################################################################################################################################
+
+RUN KUBERNETES ON AWS EKS
+
+Perform the below steps and then you can start with the same procedure as above for running locally.
+
+1. Install eksctl ( https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html )
+2. Create a cluster.yaml file ( https://eksctl.io/usage/creating-and-managing-clusters/ )
+3. Run "eksctl create cluster -f cluster.yaml".It will take 20-25 mins to create all the necessary things for kubernetes and generate a kubeconfig file too and save it in user/.kube and this will have all the necessary things that will allow kubectl that we will running locally to connect to the nodes and do deployment.
+4. After step 3 , run "kubectl get nodes" to get info of all the worker nodes(VMs).
+5. Now proced same as above steps defined for using kubernetes locally like running deployment and service file .
+6. You can see the assigned port now by running "kubectl get all -n <namespace name>". That url will be basically of a AWS classic LoadBalancer that eksctl have created in step 3 to manage all our worker nodes.
+7. Delete the cluster and associated resources by runnign "eksctl delete cluster -f cluster.yaml"
+
+###########################################################################################################################################################

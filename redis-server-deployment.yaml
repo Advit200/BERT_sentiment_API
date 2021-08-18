@@ -25,7 +25,7 @@ spec:
         io.kompose.service: redis-server
     spec:
       containers:
-      - image: redis:alpine
+      - image: redis:alpine # This will pull public image of redis from docker hub.
         imagePullPolicy: ""
         name: redis-server
         ports:
